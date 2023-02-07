@@ -1,4 +1,4 @@
-const backendURL = `http://localhost:120`;
+const backendURL = `http://localhost:8000`;
 
 const state = {
   models: [],
@@ -8,24 +8,31 @@ const state = {
 };
 
 async function loadModels() {
-  try {
-    const response = await fetch(`${backendURL}/models`);
+  let retries = 3;
 
-    if (!response.ok) {
-      const responseError = await response.json();
-      const errorMessage = responseError.detail;
-      throw new Error(errorMessage);
+  while (retries) {
+    try {
+      const response = await fetch(`${backendURL}/models`);
+
+      if (!response.ok) {
+        const responseError = await response.json();
+        const errorMessage = responseError.detail;
+        throw new Error(errorMessage);
+      }
+
+      const responseData = await response.json();
+      state.models = responseData.models;
+      break;
+    } catch (error) {
+      if (--retries === 0) {
+        Swal.fire({
+          icon: "error",
+          text: error.message,
+          confirmButtonText: "Ok",
+        });
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
-
-    const responseData = await response.json();
-
-    state.models = responseData.models;
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      text: error.message,
-      confirmButtonText: "Ok",
-    });
   }
 }
 
