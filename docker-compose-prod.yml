@@ -14,7 +14,7 @@ services:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     env_file:
       - ./env/phpmyadmin.env
     restart: unless-stopped
@@ -22,20 +22,13 @@ services:
       - mysql-db
 
   python-backend:
-    build: ./backend
+    image: papajohn77/vrp-solver-backend
     ports:
-      - "8000:80"
+      - "127.0.0.1:8000:80"
     env_file:
       - ./env/backend.env
     depends_on:
       - mysql-db
-
-  nginx-frontend:
-    build: ./frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - python-backend
 
 volumes:
   my-db:
